@@ -44,3 +44,4 @@
 - ここにはその他開発に使用したツールやサービスを書きます。
 - 例: GitHub, Figma, Canva, ChatGPT など
 gemini chatGPT
+- これからリスニングテストを始めます。
