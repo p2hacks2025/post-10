@@ -43,4 +43,4 @@
 ### その他開発に使用したツール・サービス
 - ここにはその他開発に使用したツールやサービスを書きます。
 - 例: GitHub, Figma, Canva, ChatGPT など
-gemini
+gemini chatGPT
