@@ -3,6 +3,8 @@ from flask import Flask
 from pymongo import MongoClient
 from dotenv import load_dotenv
 
+# python app.py で起動！
+
 load_dotenv() # .env を読み込む
 
 app = Flask(__name__)
@@ -46,6 +48,18 @@ def create_post():
         "message": "posted!", # 「投稿したで」
         "post_id": str(result.inserted_id) # 投稿ID
     }), 201 # HTTPのステータス
+
+TL_Limit = 20
+
+@app.route("/timeline", methods=["GET"]) # GETで実行（取得だけ）
+def timeline():
+    timeline_posts = [] # タイムラインのリスト
+
+    for post in posts.find().sort("created_at", -1).limit(TL_Limit):
+        post["_id"] = str(post["_id"]) # 投稿のIDをJSONに変換
+        timeline_posts.append(post) # 変換した投稿をリストに追加
+
+    return jsonify(timeline_posts), 200
 
 
 

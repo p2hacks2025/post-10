@@ -386,4 +386,4 @@ crashlytics-build.properties
 # End of https://www.toptal.com/developers/gitignore/api/python,unity,node
 
 # Ignore Personal Memos
-memo.txt
+# memo.txt

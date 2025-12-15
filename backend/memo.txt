@@ -1,0 +1,19 @@
+バックエンド側で入力すること
+cd backend　で移動
+.venv\Scripts\activate　で仮想環境を動かす
+    （.venv）がついていればOK
+pip install Flask python-dotenv Flask-PyMongo　でFlaskとMongoDBを使う
+<重要>envのMONGODB_URIに<db_username>と<db_password>を設定
+<重要>envのMONGODB_URI内、/と?の間にDB名（tl_app）を入れる
+python app.py　で起動
+
+powershell側で…
+Invoke-RestMethod `
+  -Uri http://127.0.0.1:5000/post `
+  -Method Post `
+  -ContentType "application/json" `
+  -Body '{"text":"はじめての投稿"}'
+で投稿テスト
+
+Invoke-RestMethod http://127.0.0.1:5000/timeline　で投稿を取得
+Invoke-RestMethod http://127.0.0.1:5000/health　でDBの生存確認
