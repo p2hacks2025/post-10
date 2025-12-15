@@ -51,7 +51,7 @@ def create_post():
 
 TL_Limit = 20
 
-@app.route("/timeline", methods=["GET"]) # GETで実行（取得だけ）
+@app.route("/timeline", methods=["GET"]) # GETリクエストで実行（取得だけ）
 def timeline():
     timeline_posts = [] # タイムラインのリスト
 
@@ -60,6 +60,46 @@ def timeline():
         timeline_posts.append(post) # 変換した投稿をリストに追加
 
     return jsonify(timeline_posts), 200
+
+
+@app.route("/react", methods=["POST"]) # POSTリクエストで実行
+def react(): # G/B処理の本体
+    data = request.json # 送られたJSONを格納
+
+    if not data or not data.get("post_id") or not data.get("type"): # テキストというかデータが不十分
+        return jsonify({"error": "post_id and type are required"}), 400 # 「エラーやで」
+
+    if data["type"] not in ["good", "bad"]: # 形がおかしい
+        return jsonify({"error": "type must be good or bad"}), 400 # 「エラーやで」
+
+    post_id = ObjectId(data["post_id"]) # 投稿のIDをDB用に変換
+
+    if data["type"] == "good": # 「いいね！」
+        posts.update_one(
+            {"_id": post_id},
+            {"$inc": {"good": 1}} # キラキラ＋１
+        )
+    else: # 「よくないね！」
+        posts.update_one(
+            {"_id": post_id},
+            {"$inc": {"bad": 1}} # 暗さ＋１
+        )
+
+    post = posts.find_one({"_id": post_id}) # GB評価後の投稿に更新
+
+    point = post["good"] - post["bad"] # キラキラ度の計算、変える予定
+
+    posts.update_one( # 計算したキラキラ度を保存
+        {"_id": post_id},
+        {"$set": {"point": point}}
+    )
+
+    return jsonify({ # フロントに返す
+        "message": "reacted",
+        "good": post["good"],
+        "bad": post["bad"],
+        "point": point
+    }), 200 # 「うまくいったで」
 
 
 
