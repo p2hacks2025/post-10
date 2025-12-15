@@ -17,3 +17,9 @@ Invoke-RestMethod `
 
 Invoke-RestMethod http://127.0.0.1:5000/timeline　で投稿を取得
 Invoke-RestMethod http://127.0.0.1:5000/health　でDBの生存確認
+
+Invoke-RestMethod `
+  -Uri http://127.0.0.1:5000/react `
+  -Method Post `
+  -ContentType "application/json" `
+  -Body '{"post_id":"6570c7e8...（投稿ID）","type":"good（あるいはbad）"}'
