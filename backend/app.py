@@ -52,6 +52,9 @@ def create_post():
 
 
 # テスト用コード
-@app.route("/health", methods=["GET"]) # Fluskの構文っぽい
+@app.route("/health", methods=["GET"]) # Flaskの構文っぽい
 def health():
     return {"status": "ok"}
+
+if __name__ == "__main__": # 直接実行時のみ
+    app.run(debug=True) # サーバー起動(開発用。本番で使わない)
