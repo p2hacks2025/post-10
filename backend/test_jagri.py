@@ -32,7 +32,7 @@ class Post:
         if self.good>n:     #基準の数より多い
             if (self.good/(self.good+self.bad))>m:      #割合が基準の数より高い
                 print("キラキラ")   #キラキラの実装　printはテスト用と考えて後から正しいものにする
-            else:
+            else:#ここelifにして条件細かくした方がよくね？
                 print("根暗")   #根暗の実装　printはテスト用と考えて後から正しいものにする
 
 #ここより下はchatGPTに出してもらった例　追加したものはコメント入れる
