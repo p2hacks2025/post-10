@@ -10,7 +10,7 @@ API_BASE = "http://127.0.0.1:5000"
 
 SUBJECTS = ["今日は", "たまには", "今は", "明日は", "しばらく"]
 VERBS = ["深呼吸して", "休憩して", "力を抜いて", "思いっきり走って", "止まって"]
-ENDINGS = ["みよう", "もいいね", "いいかも", "幸せ", ""]
+ENDINGS = ["みよう", "もいいね", "いいかも", "幸せ", "ハッピー"]
 
 while True:
     text = f"{random.choice(SUBJECTS)} {random.choice(VERBS)} {random.choice(ENDINGS)}"
