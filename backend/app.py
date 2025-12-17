@@ -2,10 +2,13 @@ import os
 from flask import Flask
 from pymongo import MongoClient
 from dotenv import load_dotenv
+from datetime import timezone, timedelta
 
 # python app.py で起動！
 
 load_dotenv() # .env を読み込む
+
+JST = timezone(timedelta(hours=9)) # 日本のタイムゾーン
 
 app = Flask(__name__)
 
@@ -57,6 +60,7 @@ def timeline():
 
     for post in posts.find().sort("created_at", -1).limit(TL_Limit):
         post["_id"] = str(post["_id"]) # 投稿のIDをJSONに変換
+        post["created_at"] = post["created_at"].astimezone(JST).isoformat() # 日本の時間に変更
         timeline_posts.append(post) # 変換した投稿をリストに追加
 
     return jsonify(timeline_posts), 200
