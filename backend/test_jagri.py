@@ -20,6 +20,35 @@ class Post:
         self.bad=bad    #ポストの悪いねの数
         self.pushedGood=False   #ポストにいいね押された判定
         self.pushedBad=False    #ポストに悪いねを押された判定
+    
+    def checkasset(self,Good,Bad):#ポストの評価
+        Perfectkirakira=100
+        Excelentkirakira=80
+        Midkirakira=60
+        Fightkirakira=40
+        Littlekirakira=20
+        Notkirakira=0
+        asset_base=(Good/(Good+Bad))*100
+        if Good<10:
+            pass
+        else:
+                if asset_base==Perfectkirakira:
+                    #めっちゃ輝く
+                elif asset_base>=Excelentkirakira:
+                    #そこそこに輝く
+                elif asset_base>=Midkirakira:
+                    #気持ち程度に輝く
+                elif asset_base>=Fightkirakira:
+                    #雀の涙にもならないくらいに輝く
+                elif asset_base>=Littlekirakira:
+                    #明らかにねたましくなる
+                elif asset_base>Notkirakira:
+                    #もはや光ってない
+                elif asset_base==Notkirakira:
+                    #めっちゃ黒い
+                else:
+                    print("キラ～ン")
+                    pass
     def savePost(self):     #ポストのいいねの数と悪いねの数を記録
         Post_detail.append([self,self.user,self.good,self.bad])     #Post_detailに保存
         Appear_post.append(self)    #Appear_postに保存
