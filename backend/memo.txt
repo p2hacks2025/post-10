@@ -7,6 +7,12 @@ pip install Flask python-dotenv Flask-PyMongo　でFlaskとMongoDBを使う
 <重要>envのMONGODB_URI内、/と?の間にDB名（tl_app）を入れる
 python app.py　で起動
 
+bot.py を動かすために
+pip install requests python-dotenv
+んでaoo.pyとは別タブで
+(.venv) python bot.py　ちゃんと止めること
+※どっちも仮想環境で
+
 powershell側で…
 Invoke-RestMethod `
   -Uri http://127.0.0.1:5000/post `
