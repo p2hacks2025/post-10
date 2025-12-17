@@ -2,10 +2,13 @@ import os
 from flask import Flask
 from pymongo import MongoClient
 from dotenv import load_dotenv
+from datetime import timezone, timedelta
 
 # python app.py で起動！
 
 load_dotenv() # .env を読み込む
+
+JST = timezone(timedelta(hours=9)) # 日本のタイムゾーン
 
 app = Flask(__name__)
 
@@ -56,8 +59,14 @@ def timeline():
     timeline_posts = [] # タイムラインのリスト
 
     for post in posts.find().sort("created_at", -1).limit(TL_Limit):
-        post["_id"] = str(post["_id"]) # 投稿のIDをJSONに変換
-        timeline_posts.append(post) # 変換した投稿をリストに追加
+        timeline_posts.append({ # 変換した投稿をリストに追加
+        "id": str(post["_id"]),  # ← ()なしのID、投稿のIDをJSONに変換
+        "text": post["text"],
+        "good": post["good"],
+        "bad": post["bad"],
+        "point": post["point"],
+        "created_at": post["created_at"].astimezone(JST).isoformat() # 日本の時間に変更
+    })
 
     return jsonify(timeline_posts), 200
 
@@ -66,13 +75,16 @@ def timeline():
 def react(): # G/B処理の本体
     data = request.json # 送られたJSONを格納
 
-    if not data or not data.get("post_id") or not data.get("type"): # テキストというかデータが不十分
-        return jsonify({"error": "post_id and type are required"}), 400 # 「エラーやで」
+    if not data or not data.get("id") or not data.get("type"): # テキストというかデータが不十分
+        return jsonify({"error": "id and type are required"}), 400 # 「エラーやで」
 
     if data["type"] not in ["good", "bad"]: # 形がおかしい
         return jsonify({"error": "type must be good or bad"}), 400 # 「エラーやで」
 
-    post_id = ObjectId(data["post_id"]) # 投稿のIDをDB用に変換
+    try: # フロントから来たIDをObjectIDとするやつ
+        post_id = ObjectId(data["id"]) # 投稿のIDをDB用に変換
+    except Exception:
+        return jsonify({"error": "invalid id"}), 400 # 「エラーやで」
 
     if data["type"] == "good": # 「いいね！」
         posts.update_one(
