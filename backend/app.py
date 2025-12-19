@@ -13,7 +13,12 @@ JST = timezone(timedelta(hours=9)) # 日本のタイムゾーン
 
 app = Flask(__name__)
 
-CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}}) # CORSの許可設定、開発中なのでとりあえずlocalhost:3000からのリクエストを許可
+frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000") # env内のURLを取得
+
+CORS(app, resources={r"/*": {
+    "origins": [frontend_url] # リスト形式で渡す
+    }
+}) # CORSの許可設定
 
 MONGODB_URI = os.getenv("MONGODB_URI") # env内のURLを取得
 
