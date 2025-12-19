@@ -8,6 +8,7 @@ type Post = {
 };
 
 import React from "react";
+import ReactionButtons from "./components/ReactionButtons";
 
 const API_URL = process.env.API_URL || "";
 
@@ -43,19 +44,13 @@ export default async function TimelinePage() {
                 {post.text}
               </p>
 
-              <div className="flex items-center justify-between text-sm text-white border-t pt-4">
-                {/* 投稿時間 */}
-                <time>{new Date(post.createdAt).toString()}</time>
-                {/* いいね数 */}
-                <div className="flex items-center space-x-1">
-                  <span className="text-red-500">❤️</span>
-                  <span>{post.good}</span>
-                </div>
-                {/* 僻み数 */}
-                <div className="flex items-center space-x-1">
-                  <span className="text-purple-400">👿</span>
-                  <span>{post.bad}</span>
-                </div>
+              <div className="flex items-center justify-between border-t pt-4">
+                {/* 2つのボタンを管理するコンポーネントを配置 */}
+                <ReactionButtons
+                  postId={post.id}
+                  initialGoodCount={post.good}
+                  initialBadCount={post.bad}
+                />
               </div>
             </div>
           ))}
