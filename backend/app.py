@@ -3,6 +3,7 @@ from flask import Flask
 from pymongo import MongoClient
 from dotenv import load_dotenv
 from datetime import timezone, timedelta
+from flask_cors import CORS
 
 # python app.py で起動！
 
@@ -11,6 +12,8 @@ load_dotenv() # .env を読み込む
 JST = timezone(timedelta(hours=9)) # 日本のタイムゾーン
 
 app = Flask(__name__)
+
+CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}}) # CORSの許可設定、開発中なのでとりあえずlocalhost:3000からのリクエストを許可
 
 MONGODB_URI = os.getenv("MONGODB_URI") # env内のURLを取得
 
