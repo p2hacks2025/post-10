@@ -8,9 +8,9 @@ load_dotenv()
 
 API_BASE = "http://127.0.0.1:5000" # API
 
-SUBJECTS = ["今日は", "たまには", "今は", "明日は", "しばらく"]
-VERBS = ["深呼吸して", "休憩して", "力を抜いて", "思いっきり走って", "止まって"]
-ENDINGS = ["みよう", "もいいね", "いいかも", "幸せ", "ハッピー"]
+SUBJECTS = ["今日は", "たまには", "今は", "明日は", "しばらく", "僕は", "私は","うちは","俺は", "小生は","吾輩は","明日は","昨日は","おとといは","一か月前は","来月は","来年は","去年は","おととしは","百年後は","人類は","人間は","この世は","あの世は"]
+VERBS = ["深呼吸して", "休憩して", "力を抜いて", "思いっきり走って", "止まって", "走って","飛び回って","笑って","のたうち回って","壊れて","あがいて","泣いて","喧嘩して"]
+ENDINGS = ["みよう", "もいいね", "いいかも", "幸せ", "ハッピー", "極楽","地獄","楽しい","悲しい","寂しい","つらい","美しい","かまびすしい","なまめかしい","デリシャス"]
 
 # いいねされやすい言葉
 GOOD_WORDS = ["良い", "ハッピー"]
@@ -37,6 +37,37 @@ def decide_reaction(text):
         return "bad"
 
     return None
+
+reacted_ids = set() # 評価済み
+
+def watch_timeline_and_react(): # 投稿を定期的に監視、評価されてない（人が投げた）投稿を評価するやつ
+    try:
+        timeline = requests.get(f"{API_BASE}/timeline").json()
+    except Exception as e:
+        print("timeline error:", e) # エラー
+        return
+
+    for post in timeline:
+        post_id = post["id"]
+
+        # すでに評価済みならスキップ
+        if post_id in reacted_ids:
+            continue
+
+        text = post["text"]
+        reaction = decide_reaction(text) # 評価する
+
+        if reaction: # いつもの評価処理
+            requests.post(
+                f"{API_BASE}/react",
+                json={
+                    "id": post_id,
+                    "type": reaction
+                }
+            )
+            print("reacted to timeline post:", reaction, text)
+
+        reacted_ids.add(post_id)
 
 
 # ランダムに投稿投げるbot
@@ -72,6 +103,11 @@ while True: # ずっと続く
             print("reacted:", reaction)
 
         time.sleep(random.randint(3, 10)) # ある程度間をあける
+
+    for _ in range(12):  # 1~5分間、5秒おきに監視
+        watch_timeline_and_react()
+        time.sleep(5)
+
 
     wait = random.randint(60, 300) # 1~5分
     print(f"wait {wait} seconds") # 「n分待つ」
