@@ -87,7 +87,7 @@ while True: # ずっと続く
     reaction_count = random.choices(
         [0, 1, 2, 3, 5, 7, 10, 12, 15, 20, 30, 50],
         weights=[6, 14, 16, 18, 14, 12, 8, 5, 3, 2, 1.5, 0.5]
-    )[0] # 大体(85%くらいの確率の予定)は0~10回の反応をされるように(現在88%)
+    )[0] # 大体(85%くらいの確率の予定)は0~10回の抽選をされるように(現在88%)
     print(f"reaction count: {reaction_count}") # 「n回反応するで」
 
     for _ in range(reaction_count): # ランダムな回数反応
@@ -102,13 +102,10 @@ while True: # ずっと続く
             )
             print("reacted:", reaction)
 
-        time.sleep(random.randint(3, 10)) # ある程度間をあける
+        time.sleep(random.uniform(0.5, 1)) # ある程度間をあける
 
-    for _ in range(12):  # 1~5分間、5秒おきに監視
-        watch_timeline_and_react()
-        time.sleep(5)
-
-
-    wait = random.randint(60, 300) # 1~5分
+    watch_timeline_and_react() # wait秒後に未評価投稿を探して評価
+    #wait = random.randint(60, 300) # 1~5分
+    wait = random.randint(10, 15) # 10~15秒（テスト用）
     print(f"wait {wait} seconds") # 「n分待つ」
     time.sleep(wait)
