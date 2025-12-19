@@ -8,9 +8,13 @@ export default function NewPostPage() {
   const [isPending, setIsPending] = useState(false);
   const router = useRouter();
 
+  const MAX_CHARS = 140; //文字数制限
+  const remainingChars = MAX_CHARS - content.length;
+  const isOverLimit = remainingChars < 0;
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!content.trim()) return;
+    if (!content.trim() || isOverLimit) return;
 
     setIsPending(true);
 
@@ -42,7 +46,11 @@ export default function NewPostPage() {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div className="flex justify-center">
           <textarea
-            className="w-[70dvw] h-40 p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-none text-white"
+            className={`w-[70dvw] h-40 p-4 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none resize-none text-white transition-all ${
+              isOverLimit
+                ? "border-red-500 forcus:ring-red-200"
+                : "border-gray-300 focus:ring-blue-500"
+            } `}
             placeholder="あなたのキラキラを投稿しよう！"
             value={content}
             onChange={(e) => setContent(e.target.value)}
@@ -50,12 +58,19 @@ export default function NewPostPage() {
           />
         </div>
 
-
         <div className="flex justify-end mr-[15dvw]">
+          {/* 文字数カウンター */}
+          <span className={`text-sm font-medium content-center mr-4 ${
+            isOverLimit ? "text-red-500" : "text-gray-300"
+          }`}>
+            あと {remainingChars} 文字
+          </span>
+
+          {/* 投稿ボタン */}
           <button
             type="submit"
-            disabled={isPending || !content.trim()}
-            className="bg-blue-500 text-white px-6 py-2 rounded-full font-bold hover:bg-blue-600 disabled:opacity-50 transition-colors"
+            disabled={isPending || !content.trim() || isOverLimit}
+            className="bg-blue-500 text-white px-6 py-2 rounded-full font-bold hover:bg-blue-600 disabled:opacity-25 disabled:bg-blue-200 transition-colors"
           >
             {isPending ? '送信中...' : '投稿する'}
           </button>
