@@ -28,24 +28,25 @@ class Post:
         Fightkirakira=40
         Littlekirakira=20
         Notkirakira=0
+        base=10
         asset_base=(Good/(Good+Bad))*100
-        if Good<10:
+        if Good<base:
             pass
         else:
                 if asset_base==Perfectkirakira:
-                    #めっちゃ輝く
+                    pass#めっちゃ輝く
                 elif asset_base>=Excelentkirakira:
-                    #そこそこに輝く
+                    pass#そこそこに輝く
                 elif asset_base>=Midkirakira:
-                    #気持ち程度に輝く
+                    pass#気持ち程度に輝く
                 elif asset_base>=Fightkirakira:
-                    #雀の涙にもならないくらいに輝く
+                    pass#雀の涙にもならないくらいに輝く
                 elif asset_base>=Littlekirakira:
-                    #明らかにねたましくなる
+                    pass#明らかにねたましくなる
                 elif asset_base>Notkirakira:
-                    #もはや光ってない
+                    pass#もはや光ってない
                 elif asset_base==Notkirakira:
-                    #めっちゃ黒い
+                    pass#めっちゃ黒い
                 else:
                     print("キラ～ン")
                     pass
