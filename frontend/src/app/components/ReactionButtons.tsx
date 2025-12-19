@@ -65,7 +65,7 @@ export default function ReactionButtons({ postId, initialGoodCount, initialBadCo
           activeType === 'bad' ? 'bg-red-100 text-red-600' : 'hover:bg-gray-100 text-gray-500'
         }`}
       >
-        <span>{activeType === 'bad' ? '👎' : '消えろ👎'}</span>
+        <span>{activeType === 'bad' ? '👎' : 'よくないね👎'}</span>
         <span className="font-bold">{counts.bad}</span>
       </button>
     </div>

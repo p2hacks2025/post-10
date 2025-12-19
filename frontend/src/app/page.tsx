@@ -29,8 +29,8 @@ export default async function TimelinePage() {
   const posts = await getTimeline();
 
   return (
-    <main className="min-h-screen bg-gray-800 py-8">
-      <div className="max-w-2xl mx-auto px-4">
+    <main className="min-h-screen min-w-[80vw] bg-gray-800 py-8">
+      <div className="max-w-[85vw] md:max-w-[65vw] mx-auto">
         <h1 className="text-2xl font-bold text-white mb-6">名前はまだない</h1>
 
         <div className="space-y-4">
@@ -40,7 +40,7 @@ export default async function TimelinePage() {
               className="bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-400"
             >
               {/* 投稿本文 */}
-              <p className="text-white text-lg mb-4 whitespace-pre-wrap">
+              <p className="text-white text-lg mb-4 text-pretty whitespace-preline wrap-anywhere">
                 {post.text}
               </p>
 
