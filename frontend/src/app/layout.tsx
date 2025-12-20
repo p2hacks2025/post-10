@@ -11,6 +11,8 @@ const notoTasks = Noto_Sans_JP({
   display: 'swap',
 });
 
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+
 export const metadata: Metadata = {
   title: {
     default: "Mira | 新感覚SNS",
@@ -21,8 +23,8 @@ export const metadata: Metadata = {
   // OGP設定（シェアされた時の見た目）
   openGraph: {
     title: "Mira",
-    description: "感情の重みを視覚化する新感覚SNS",
-    url: "https://your-app-url.com", // デプロイ後のURL
+    description: "キラキラした思い出だけが見える新感覚SNS",
+    url: siteUrl, // デプロイ後のURL
     siteName: "Mira",
     locale: "ja_JP",
     type: "website",
@@ -31,7 +33,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "Mira",
-    description: "感情の重みを視覚化する新感覚SNS",
+    description: "キラキラした思い出だけが見える新感覚SNS",
   },
 };
 
