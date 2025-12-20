@@ -9,7 +9,7 @@ type Post = {
   createdAt: Date; // ISO 8601形式などを想定
 };
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import PostCard from "./components/PostCard"; // 投稿表示用コンポーネント
 import SkeletonPost from "./components/SkeletonPost";
 
@@ -20,12 +20,21 @@ export default function TimelinePage() {
   const [isMoreLoading, setIsMoreLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
 
+  // ★ 監視用のターゲットを指すリファレンス
+  const observerTarget = useRef(null);
+
   // 初回読み込み
   useEffect(() => {
     fetchPosts(0);
   }, []);
 
-  const fetchPosts = async (currentOffset: number) => {
+  const fetchPosts = useCallback(async (currentOffset: number) => {
+    // すでにロード中、またはデータがない場合は即終了
+    // 💡 さらに isLoading (初回) 中もガードしておくと安全
+    if (isMoreLoading || !hasMore || (currentOffset !== 0 && isLoading)) return; //重複読み込み防止
+
+    setIsMoreLoading(true);
+
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/timeline?offset=${currentOffset}`);
       const newPosts = await res.json();
@@ -45,15 +54,29 @@ export default function TimelinePage() {
       setIsLoading(false);
       setIsMoreLoading(false);
     }
-  };
+  }, [isMoreLoading, hasMore, isLoading]);
 
-  const handleLoadMore = () => {
-    setIsMoreLoading(true);
-    fetchPosts(posts.length); // 現在の件数を offset として送る
-  };
+  // ★ 無限スクロールのコアロジック
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        // ターゲットが画面に入り、かつ読み込み中でなければ次を読み込む
+        if (entries[0].isIntersecting && hasMore && !isMoreLoading) {
+          fetchPosts(posts.length);
+        }
+      },
+      { threshold: 1.0 } // 完全に画面に入ったら発火
+    );
+
+    if (observerTarget.current) {
+      observer.observe(observerTarget.current);
+    }
+
+    return () => observer.disconnect();
+  }, [posts.length, hasMore, isMoreLoading, fetchPosts]);
 
   if (isLoading) return (
-    <div className="scapce-y-4 p-4">
+    <div className="space-y-4 p-4">
       {[...Array(7)].map((_, i) => <SkeletonPost key={i} />)}
     </div>
   );
@@ -66,19 +89,10 @@ return (
         ))}
       </div>
 
-      {/* もっと見るボタン */}
-      <div className="mt-8 flex justify-center">
-        {hasMore ? (
-          <button
-            onClick={handleLoadMore}
-            disabled={isMoreLoading}
-            className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-8 py-3 rounded-full font-bold transition-colors disabled:opacity-50"
-          >
-            {isMoreLoading ? '読み込み中...' : 'もっと見る'}
-          </button>
-        ) : (
-          <p className="text-gray-400 text-sm">すべての投稿を読み込みました</p>
-        )}
+      {/* ★ 監視用ターゲット兼ローダー */}
+      <div ref={observerTarget} className="h-20 flex items-center justify-center mt-4">
+        {isMoreLoading && <p className="text-gray-500 animate-pulse">読み込み中...</p>}
+        {!hasMore && <p className="text-gray-600 text-sm italic">すべての投稿を表示しました</p>}
       </div>
     </main>
   );
