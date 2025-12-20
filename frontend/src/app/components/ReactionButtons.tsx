@@ -16,29 +16,29 @@ export default function ReactionButtons({ postId, goodCount, badCount, onReact }
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
   const handleReact = async (type: ReactionType) => {
-    // ボタンの連打防止
-    setActiveType(type);
+  // すでに同じタイプが押されていたら undo
+  const isUndo = activeType === type;
+  const nextType = isUndo ? null : type;
 
-    try {
-      const res = await fetch(`${API_URL}/react`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          id: postId,
-          type: type,
-        }),
-      });
+  try {
+    const res = await fetch(`${API_URL}/react`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        id: postId,
+        type: type,
+        undo: isUndo // ここで取り消しかどうかを伝える
+      }),
+    });
 
-      const data = await res.json();
+    const data = await res.json();
 
       if (res.ok) {
-        // ★ ここで親（TimelinePage）の posts ステートを直接更新する
-        // 親が更新されると、このコンポーネントに渡される goodCount / badCount も自動で増える
-        onReact(postId, data.good, data.bad, data.point);
+        setActiveType(nextType); // 成功したら色を切り替え/解除
+        onReact(postId, data.good, data.bad, data.point); // 親に通知して文字サイズを更新
       }
     } catch (error) {
       console.error('Failed to react:', error);
-      setActiveType(null); // エラー時は色を戻す
     }
   };
 
