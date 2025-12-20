@@ -20,7 +20,7 @@ const getDynamicStyle = (point: number) => {
 
   // 3. 軽度の低評価 (-1.5 〜 -4)
   if (point <= -1.5 && point > -4.0) {
-    return "text-lg font-medium text-red-500 opacity-80 drop-shadow-[0_0_3px_rgba(239,68,68,0.4)]";
+    return "text-lg font-medium text-red-800 opacity-80 drop-shadow-[0_0_3px_rgba(239,68,68,0.4)]";
   }
 
   // 4. 重度の低評価 (-4以下)
