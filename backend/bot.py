@@ -107,7 +107,7 @@ while True: # ずっと続く
         time.sleep(random.uniform(0.5, 1)) # ある程度間をあける
 
     watch_timeline_and_react() # wait秒後に未評価投稿を探して評価
-    #wait = random.randint(60, 300) # 1~5分
-    wait = random.randint(10, 15) # 10~15秒（テスト用）
+    wait = random.randint(60, 90) # 1~1.5分
+    #wait = random.randint(10, 15) # 10~15秒（テスト用）
     print(f"wait {wait} seconds") # 「n分待つ」
     time.sleep(wait)
