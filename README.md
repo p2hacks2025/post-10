@@ -61,6 +61,7 @@
 - flask-cors
 - pymongo
 - python-dotenv
+- tkinter
 
 **データベース**
 - MongoDB
