@@ -6,7 +6,7 @@ type Post = {
   good: number;
   bad: number;
   point: number;
-  createdAt: Date; // ISO 8601形式などを想定
+  created_at: string; // ISO 8601形式などを想定
 };
 
 import { useState, useEffect, useRef, useCallback } from "react";
@@ -23,22 +23,22 @@ export default function TimelinePage() {
   // ★ 監視用のターゲットを指すリファレンス
   const observerTarget = useRef(null);
 
-const fetchPosts = useCallback(async (currentOffset: number) => {
-  console.log(`Offset: ${currentOffset}, posts.length: ${posts.length}`);
+  const fetchPosts = useCallback(async (currentOffset: number) => {
+    console.log(`Offset: ${currentOffset}, posts.length: ${posts.length}`);
 
-  if (currentOffset === 0 && posts.length > 0) return;
+    if (currentOffset === 0 && posts.length > 0) return;
 
-  if (isMoreLoading || !hasMore || (currentOffset !== 0 && isLoading)) return;
+    if (isMoreLoading || !hasMore || (currentOffset !== 0 && isLoading)) return;
 
-  setIsMoreLoading(true);
+    setIsMoreLoading(true);
 
-  try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/timeline?offset=${currentOffset}`);
-    const newPosts = await res.json();
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/timeline?offset=${currentOffset}`);
+      const newPosts = await res.json();
 
-    if (newPosts.length < 20) {
-      setHasMore(false);
-    }
+      if (newPosts.length < 20) {
+        setHasMore(false);
+      }
 
     setPosts((prev) => {
       // 最初の読み込み（offset 0）ならそのままセット
@@ -50,13 +50,13 @@ const fetchPosts = useCallback(async (currentOffset: number) => {
       return [...prev, ...filteredNewPosts];
     });
 
-  } catch (error) {
-    console.error(error);
-  } finally {
-    setIsLoading(false);
-    setIsMoreLoading(false);
-  }
-}, [isMoreLoading, hasMore, isLoading, posts.length]);
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+      setIsMoreLoading(false);
+    }
+  }, [isMoreLoading, hasMore, isLoading, posts.length]);
 
   // 初回読み込み
   useEffect(() => {
@@ -86,6 +86,19 @@ const fetchPosts = useCallback(async (currentOffset: number) => {
     return () => observer.disconnect();
   }, [posts.length, hasMore, isMoreLoading, isLoading, fetchPosts]);
 
+  const updatePostPoints = useCallback((postId: string, newGood: number, newBad: number, newPoint: number) => {
+    console.log("Updating post:", postId, "New point:", newPoint); // これがコンソールに出るか？
+    setPosts((prevPosts) => {
+      // 新しい配列を作成して、対象の投稿だけ差し替える
+      const nextPosts = prevPosts.map((post) =>
+        post.id === postId
+          ? { ...post, good: newGood, bad: newBad, point: newPoint }
+          : post
+      );
+      return [...nextPosts]; // スプレッド構文で新しい配列として返す
+    });
+  }, []);
+
   if (isLoading) return (
     <div className="space-y-4 p-4">
       {[...Array(7)].map((_, i) => <SkeletonPost key={i} />)}
@@ -96,14 +109,14 @@ return (
     <main className="md:max-w-[40vw] max-w-[90vw] mx-auto p-4 pb-24">
       <div className="space-y-4">
         {posts.map((post) => (
-          <PostCard key={post.id} post={post} />
+          <PostCard key={post.id} post={post} onUpdate={updatePostPoints} />
         ))}
       </div>
 
       {/* ★ 監視用ターゲット兼ローダー */}
       {/* ★ 常に一定の高さ(h-20)を保ち、透明でもそこに「ある」状態にする */}
-      <div 
-        ref={observerTarget} 
+      <div
+        ref={observerTarget}
         className="h-20 w-full flex flex-col items-center justify-center mt-10 mb-20"
       >
         {isMoreLoading && (
