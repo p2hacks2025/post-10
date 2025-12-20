@@ -17,7 +17,7 @@ app = Flask(__name__)
 frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000") # env内のURLを取得
 
 CORS(app, resources={r"/*": {
-    "origins": [frontend_url] # リスト形式で渡す
+    "origins": "*" # リスト形式で渡す
     }
 }) # CORSの許可設定
 
