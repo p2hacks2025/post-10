@@ -1,3 +1,5 @@
+'use client'
+
 type Post = {
   id: string;
   text: string;
@@ -7,54 +9,114 @@ type Post = {
   createdAt: Date; // ISO 8601形式などを想定
 };
 
-import React from "react";
-import ReactionButtons from "./components/ReactionButtons";
+import { useState, useEffect, useRef, useCallback } from "react";
+import PostCard from "./components/PostCard"; // 投稿表示用コンポーネント
+import SkeletonPost from "./components/SkeletonPost";
 
-const API_URL = process.env.API_URL || "";
 
-// データの取得関数
-async function getTimeline(): Promise<Post[]> {
-  const res = await fetch(`${API_URL}/timeline`, {
-    cache: "no-store", // 常に最新の投稿を取得する場合
-  });
+export default function TimelinePage() {
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isMoreLoading, setIsMoreLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
 
-  if (!res.ok) {
-    throw new Error("データの取得に失敗しました");
+  // ★ 監視用のターゲットを指すリファレンス
+  const observerTarget = useRef(null);
+
+const fetchPosts = useCallback(async (currentOffset: number) => {
+  console.log(`Offset: ${currentOffset}, posts.length: ${posts.length}`);
+
+  if (currentOffset === 0 && posts.length > 0) return;
+
+  if (isMoreLoading || !hasMore || (currentOffset !== 0 && isLoading)) return;
+
+  setIsMoreLoading(true);
+
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/timeline?offset=${currentOffset}`);
+    const newPosts = await res.json();
+
+    if (newPosts.length < 20) {
+      setHasMore(false);
+    }
+
+    setPosts((prev) => {
+      // 最初の読み込み（offset 0）ならそのままセット
+      if (currentOffset === 0) return newPosts;
+
+      // 2回目以降なら、既存のデータと合体（重複を防ぐために念のためチェック）
+      const existingIds = new Set(prev.map(p => p.id));
+      const filteredNewPosts = newPosts.filter((p: Post) => !existingIds.has(p.id));
+      return [...prev, ...filteredNewPosts];
+    });
+
+  } catch (error) {
+    console.error(error);
+  } finally {
+    setIsLoading(false);
+    setIsMoreLoading(false);
   }
+}, [isMoreLoading, hasMore, isLoading, posts.length]);
 
-  return res.json();
-}
+  // 初回読み込み
+  useEffect(() => {
+    fetchPosts(0);
+  }, [fetchPosts]);
 
-export default async function TimelinePage() {
-  const posts = await getTimeline();
+  // ★ 無限スクロールのコアロジック
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && hasMore && !isMoreLoading && !isLoading && posts.length> 0) {
+          // 念のため、現在の件数をログに出して確認
+          console.log("Bottom reached! Fetching offset:", posts.length);
+          fetchPosts(posts.length);
+        }
+      },
+      {
+        threshold: 0.1, // 10% 見えたら発火
+        rootMargin: "100px" // 画面の底につく 100px 前に読み込み開始
+      }
+    );
 
-  return (
-    <main className="min-h-screen min-w-[80vw] bg-gray-800 py-8">
-      <div className="max-w-[85vw] md:max-w-[65vw] mx-auto">
-        <h1 className="text-2xl font-bold text-white mb-6">名前はまだない</h1>
+    if (observerTarget.current) {
+      observer.observe(observerTarget.current);
+    }
 
-        <div className="space-y-4">
-          {posts.map((post) => (
-            <div
-              key={post.id}
-              className="bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-400"
-            >
-              {/* 投稿本文 */}
-              <p className="text-white text-lg mb-4 text-pretty whitespace-preline wrap-anywhere">
-                {post.text}
-              </p>
+    return () => observer.disconnect();
+  }, [posts.length, hasMore, isMoreLoading, isLoading, fetchPosts]);
 
-              <div className="flex items-center justify-between border-t pt-4">
-                {/* 2つのボタンを管理するコンポーネントを配置 */}
-                <ReactionButtons
-                  postId={post.id}
-                  initialGoodCount={post.good}
-                  initialBadCount={post.bad}
-                />
-              </div>
-            </div>
-          ))}
-        </div>
+  if (isLoading) return (
+    <div className="space-y-4 p-4">
+      {[...Array(7)].map((_, i) => <SkeletonPost key={i} />)}
+    </div>
+  );
+
+return (
+    <main className="md:max-w-[40vw] max-w-[90vw] mx-auto p-4 pb-24">
+      <div className="space-y-4">
+        {posts.map((post) => (
+          <PostCard key={post.id} post={post} />
+        ))}
+      </div>
+
+      {/* ★ 監視用ターゲット兼ローダー */}
+      {/* ★ 常に一定の高さ(h-20)を保ち、透明でもそこに「ある」状態にする */}
+      <div 
+        ref={observerTarget} 
+        className="h-20 w-full flex flex-col items-center justify-center mt-10 mb-20"
+      >
+        {isMoreLoading && (
+          <div className="flex flex-col items-center space-y-2">
+            <div className="animate-spin h-6 w-6 border-4 border-blue-500 border-t-transparent rounded-full"></div>
+            <p className="text-gray-500 text-sm">さらに読み込み中...</p>
+          </div>
+        )}
+        {!hasMore && posts.length > 0 && (
+          <p className="text-gray-600 text-sm italic border-t border-gray-800 pt-4 w-full text-center">
+            —— すべての投稿を表示しました ——
+          </p>
+        )}
       </div>
     </main>
   );

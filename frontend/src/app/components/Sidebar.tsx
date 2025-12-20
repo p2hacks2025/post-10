@@ -15,9 +15,9 @@ export default function Sidebar() {
   return (
     <>
       {/* PC画面用の固定サイドバー、左側 */}
-      <aside className="w-64 h-screen sticky top-0 border-r border-gray-500 p-6 bg-gray-800 hidden md:block">
+      <aside className="w-18rem h-screen sticky top-0 border-r border-gray-700 p-6 bg-gray-800 hidden md:block">
         <div className="mb-8">
-          <h2 className="text-xl font-bold text-blue-500">名前はまだない</h2>
+          <h2 className="text-2xl font-bold text-blue-500">Mira</h2>
         </div>
 
         <nav className="space-y-2">
@@ -44,7 +44,7 @@ export default function Sidebar() {
 
       {/* --- スマホ用 (下部固定ナビゲーション) --- */}
       <div className="md:hidden fixed bottom-4 left-0 right-0 flex justify-center z-50">
-        <nav className="bg-gray-800 border border-gray-500 flex justify-around py-3 w-[90vw] rounded-2xl shadow-xl px-2">
+        <nav className="bg-gray-800 border border-gray-700 flex justify-around py-3 w-[90vw] rounded-2xl shadow-xl px-2">
           {menuItems.map((item) => {
             const isActive = pathname === item.href;
             return (
