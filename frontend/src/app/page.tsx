@@ -1,3 +1,5 @@
+'use client'
+
 type Post = {
   id: string;
   text: string;
@@ -7,54 +9,76 @@ type Post = {
   createdAt: Date; // ISO 8601形式などを想定
 };
 
-import React from "react";
-import ReactionButtons from "./components/ReactionButtons";
+import { useState, useEffect } from "react";
+import PostCard from "./components/PostCard"; // 投稿表示用コンポーネント
+import SkeletonPost from "./components/SkeletonPost";
 
-const API_URL = process.env.API_URL || "";
 
-// データの取得関数
-async function getTimeline(): Promise<Post[]> {
-  const res = await fetch(`${API_URL}/timeline`, {
-    cache: "no-store", // 常に最新の投稿を取得する場合
-  });
+export default function TimelinePage() {
+  const [posts, setPosts] = useState<Post[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isMoreLoading, setIsMoreLoading] = useState(false);
+  const [hasMore, setHasMore] = useState(true);
 
-  if (!res.ok) {
-    throw new Error("データの取得に失敗しました");
-  }
+  // 初回読み込み
+  useEffect(() => {
+    fetchPosts(0);
+  }, []);
 
-  return res.json();
-}
+  const fetchPosts = async (currentOffset: number) => {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/timeline?offset=${currentOffset}`);
+      const newPosts = await res.json();
 
-export default async function TimelinePage() {
-  const posts = await getTimeline();
+      if (newPosts.length < 20) {
+        setHasMore(false); //20件未満なら、「次のデータ」はもうない
+      }
 
-  return (
-    <main className="min-h-screen min-w-[80vw] bg-gray-800 py-8">
-      <div className="max-w-[85vw] md:max-w-[65vw] mx-auto">
-        <h1 className="text-2xl font-bold text-white mb-6">名前はまだない</h1>
+      if (currentOffset === 0) {
+        setPosts(newPosts);
+      } else {
+        setPosts((prev) =>[...prev, ...newPosts]); /// 既存のデータの後ろに合体！
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setIsLoading(false);
+      setIsMoreLoading(false);
+    }
+  };
 
-        <div className="space-y-4">
-          {posts.map((post) => (
-            <div
-              key={post.id}
-              className="bg-gray-800 p-6 rounded-xl shadow-sm border border-gray-400"
-            >
-              {/* 投稿本文 */}
-              <p className="text-white text-lg mb-4 text-pretty whitespace-preline wrap-anywhere">
-                {post.text}
-              </p>
+  const handleLoadMore = () => {
+    setIsMoreLoading(true);
+    fetchPosts(posts.length); // 現在の件数を offset として送る
+  };
 
-              <div className="flex items-center justify-between border-t pt-4">
-                {/* 2つのボタンを管理するコンポーネントを配置 */}
-                <ReactionButtons
-                  postId={post.id}
-                  initialGoodCount={post.good}
-                  initialBadCount={post.bad}
-                />
-              </div>
-            </div>
-          ))}
-        </div>
+  if (isLoading) return (
+    <div className="scapce-y-4 p-4">
+      {[...Array(7)].map((_, i) => <SkeletonPost key={i} />)}
+    </div>
+  );
+
+return (
+    <main className="md:max-w-[40vw] max-w-[90vw] mx-auto p-4 pb-24">
+      <div className="space-y-4">
+        {posts.map((post) => (
+          <PostCard key={post.id} post={post} />
+        ))}
+      </div>
+
+      {/* もっと見るボタン */}
+      <div className="mt-8 flex justify-center">
+        {hasMore ? (
+          <button
+            onClick={handleLoadMore}
+            disabled={isMoreLoading}
+            className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-8 py-3 rounded-full font-bold transition-colors disabled:opacity-50"
+          >
+            {isMoreLoading ? '読み込み中...' : 'もっと見る'}
+          </button>
+        ) : (
+          <p className="text-gray-400 text-sm">すべての投稿を読み込みました</p>
+        )}
       </div>
     </main>
   );
