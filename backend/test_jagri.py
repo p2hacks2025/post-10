@@ -21,36 +21,6 @@ class Post:
         self.bad=bad    #ポストの悪いねの数
         self.pushedGood=False   #ポストにいいね押された判定
         self.pushedBad=False    #ポストに悪いねを押された判定
-    
-    def checkasset(self,Good,Bad):#ポストの評価
-        Perfectkirakira=100
-        Excelentkirakira=80
-        Midkirakira=60
-        Fightkirakira=40
-        Littlekirakira=20
-        Notkirakira=0
-        base=10
-        asset_base=(Good/(Good+Bad))*100
-        if Good<base:
-            pass
-        else:
-                if asset_base==Perfectkirakira:
-                    pass#めっちゃ輝く
-                elif asset_base>=Excelentkirakira:
-                    pass#そこそこに輝く
-                elif asset_base>=Midkirakira:
-                    pass#気持ち程度に輝く
-                elif asset_base>=Fightkirakira:
-                    pass#雀の涙にもならないくらいに輝く
-                elif asset_base>=Littlekirakira:
-                    pass#明らかにねたましくなる
-                elif asset_base>Notkirakira:
-                    pass#もはや光ってない
-                elif asset_base==Notkirakira:
-                    pass#めっちゃ黒い
-                else:
-                    print("キラ～ン")
-                    pass
     def savePost(self):     #ポストのいいねの数と悪いねの数を記録
         Post_detail.append([self,self.user,self.good,self.bad])     #Post_detailに保存
         Appear_post.append(self)    #Appear_postに保存
@@ -65,7 +35,6 @@ class Post:
                 print("キラキラ")   #キラキラの実装　printはテスト用と考えて後から正しいものにする
             else:#ここelifにして条件細かくした方がよくね？
                 print("根暗")   #根暗の実装　printはテスト用と考えて後から正しいものにする
-
 #ここより下はchatGPTに出してもらった例　追加したものはコメント入れる
 import tkinter as tk
 from tkinter import ttk, messagebox
