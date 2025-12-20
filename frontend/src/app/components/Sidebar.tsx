@@ -9,7 +9,7 @@ export default function Sidebar() {
   const menuItems = [
     { name: 'ホーム', href: '/timeline', icon: '🏠' },
     { name: '投稿する', href: '/new-post', icon: '📝' },
-    { name: 'このアプリについて', href: '/about', icon: 'ℹ️' },
+    { name: 'このアプリについて', href: '/', icon: 'ℹ️' },
   ];
 
   return (
