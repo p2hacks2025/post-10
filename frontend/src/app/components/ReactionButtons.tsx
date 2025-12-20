@@ -6,67 +6,62 @@ type ReactionType = 'good' | 'bad';
 
 type Props = {
   postId: string;
-  initialGoodCount: number;
-  initialBadCount: number;
+  goodCount: number; // initial ではなく現在の数を受け取る
+  badCount: number;  // 同上
+  onReact: (id: string, good: number, bad: number, point: number) => void; // 追加
 };
 
-export default function ReactionButtons({ postId, initialGoodCount, initialBadCount }: Props) {
-  const [counts, setCounts] = useState({ good: initialGoodCount, bad: initialBadCount });
+export default function ReactionButtons({ postId, goodCount, badCount, onReact }: Props) {
   const [activeType, setActiveType] = useState<ReactionType | null>(null);
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "";
 
   const handleReact = async (type: ReactionType) => {
-    // 既に同じタイプが押されている場合は解除（トグル）する想定
-    // ※バックエンドの仕様が「上書き」か「解除不可」かによって調整してください
-    const isDeselcting = activeType === type;
-    const nextType = isDeselcting ? null : type;
-
-    // 楽観的更新のロジック
-    const newCounts = { ...counts };
-    if (activeType) newCounts[activeType]--; // 前の評価を引く
-    if (nextType) newCounts[nextType]++;    // 新しい評価を足す
-
-    setCounts(newCounts);
-    setActiveType(nextType);
+    // ボタンの連打防止
+    setActiveType(type);
 
     try {
-      await fetch(`${API_URL}/react`, {
+      const res = await fetch(`${API_URL}/react`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           id: postId,
-          type: type, // 'good' or 'bad'
+          type: type,
         }),
       });
-      console.log('Successfully reacted!');
+
+      const data = await res.json();
+
+      if (res.ok) {
+        // ★ ここで親（TimelinePage）の posts ステートを直接更新する
+        // 親が更新されると、このコンポーネントに渡される goodCount / badCount も自動で増える
+        onReact(postId, data.good, data.bad, data.point);
+      }
     } catch (error) {
       console.error('Failed to react:', error);
-      // 本来はここでエラー前の状態にロールバックする処理を入れます
+      setActiveType(null); // エラー時は色を戻す
     }
   };
 
   return (
     <div className="flex items-center space-x-4">
-      {/* Good ボタン */}
       <button
         onClick={() => handleReact('good')}
-        className={`flex items-center space-x-1 px-3 py-1 rounded-full transition-colors ${
-          activeType === 'good' ? 'bg-blue-100 text-blue-600' : 'hover:bg-gray-100 text-gray-500'
+        className={`flex items-center space-x-1 px-3 py-1 rounded-full transition-all ${
+          activeType === 'good' ? 'bg-blue-600 text-white' : 'hover:bg-gray-700 text-gray-400'
         }`}
       >
-        <span>{activeType === 'good' ? '👍' : 'いいね👍'}</span>
-        <span className="font-bold">{counts.good}</span>
+        <span>👍</span>
+        <span className="font-bold">{goodCount}</span>
       </button>
 
-      {/* Bad ボタン */}
       <button
         onClick={() => handleReact('bad')}
-        className={`flex items-center space-x-1 px-3 py-1 rounded-full transition-colors ${
-          activeType === 'bad' ? 'bg-red-100 text-red-600' : 'hover:bg-gray-100 text-gray-500'
+        className={`flex items-center space-x-1 px-3 py-1 rounded-full transition-all ${
+          activeType === 'bad' ? 'bg-red-600 text-white' : 'hover:bg-gray-700 text-gray-400'
         }`}
       >
-        <span>{activeType === 'bad' ? '👎' : 'よくないね👎'}</span>
-        <span className="font-bold">{counts.bad}</span>
+        <span>👎</span>
+        <span className="font-bold">{badCount}</span>
       </button>
     </div>
   );
