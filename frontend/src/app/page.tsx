@@ -8,8 +8,8 @@ export default function LandingPage() {
         Mira
       </h1>
       <p className="text-gray-400 text-xl mb-12 max-w-lg">
-        あなたの言葉が、輝きを放つか、闇に沈むか。<br />
-        感情の重みを視覚化する、新感覚SNS。
+        キラキラした思い出だけが見える。<br />
+        P2HACKS発、新感覚SNS。
       </p>
 
       <div className="flex gap-4">
