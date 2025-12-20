@@ -65,9 +65,14 @@ TL_Limit = 20
 
 @app.route("/timeline", methods=["GET"]) # GETリクエストで実行（取得だけ）
 def timeline():
+    # フロントエンドから ?offset=20 のように送られてくる値を取得
+    # 指定がない場合は 0（最初から）にする
+    offset = request.args.get('offset', default=0, type=int)
     timeline_posts = [] # タイムラインのリスト
 
-    for post in posts.find().sort("created_at", -1).limit(TL_Limit):
+    # .skip(offset) を追加して、既に読み込んだ分を飛ばす
+    # .sort("created_at", -1) で最新順を維持
+    for post in posts.find().sort("created_at", -1).skip(offset).limit(TL_Limit):
         timeline_posts.append({ # 変換した投稿をリストに追加
         "id": str(post["_id"]),  # ← ()なしのID、投稿のIDをJSONに変換
         "text": post["text"],
