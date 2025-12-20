@@ -95,23 +95,31 @@ def react(): # G/B処理の本体
     if data["type"] not in ["good", "bad"]: # 形がおかしい
         return jsonify({"error": "type must be good or bad"}), 400 # 「エラーやで」
 
-    try: # フロントから来たIDをObjectIDとするやつ
-        post_id = ObjectId(data["id"]) # 投稿のIDをDB用に変換
-    except Exception:
-        return jsonify({"error": "invalid id"}), 400 # 「エラーやで」
+    # undoフラグを確認。送られてこなければ False とする
+    is_undo = data.get("undo", False)
+    # undoなら -1、そうでなければ +1
+    change = -1 if is_undo else 1
 
-    if data["type"] == "good": # 「いいね！」
-        posts.update_one(
-            {"_id": post_id},
-            {"$inc": {"good": 1}} # キラキラ＋１
-        )
-    else: # 「よくないね！」
-        posts.update_one(
-            {"_id": post_id},
-            {"$inc": {"bad": 1}} # 暗さ＋１
-        )
+    try:
+        post_id = ObjectId(data["id"])
+    except Exception:
+        return jsonify({"error": "invalid id"}), 400
+
+    # 対象のフィールド（good か bad）を決定
+    field = "good" if data["type"] == "good" else "bad"
+
+    # 数値を更新
+    posts.update_one(
+        {"_id": post_id},
+        {"$inc": {field: change}}
+    )
 
     post = posts.find_one({"_id": post_id}) # GB評価後の投稿に更新
+
+    # 念のため数値がマイナスにならないようガード（トグル連打対策）
+    if post[field] < 0:
+        posts.update_one({"_id": post_id}, {"$set": {field: 0}})
+        post[field] = 0
 
     if (post["good"] + post["bad"]) == 0:
         point = 0

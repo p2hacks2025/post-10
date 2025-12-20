@@ -37,7 +37,7 @@ export default function PostCard({ post, onUpdate }: { post: Post, onUpdate: (id
 
   return (
     <div className="bg-gray-800 p-6 rounded-xl border border-gray-700 transition-all duration-500 overflow-hidden">
-      <p className={`${textStyle} whitespace-pre-line wrap-anywhere text-wrap transition-all duration-700`}>
+      <p className={`${textStyle} whitespace-pre-line wrap-anywhere text-wrap duration-700 hover:scale-[1.02] transition-transform`}>
         {post.text}
       </p>
 
