@@ -4,6 +4,7 @@ from pymongo import MongoClient
 from dotenv import load_dotenv
 from datetime import timezone, timedelta
 from flask_cors import CORS
+import math
 
 # python app.py で起動！
 
@@ -107,7 +108,11 @@ def react(): # G/B処理の本体
 
     post = posts.find_one({"_id": post_id}) # GB評価後の投稿に更新
 
-    point = post["good"] - post["bad"] # キラキラ度の計算、変える予定
+    if (post["good"] + post["bad"]) == 0:
+        point = 0
+    else:
+        point = (post["good"] - post["bad"]) / (post["good"] + post["bad"]) * math.log((post["good"] + post["bad"]) + 1)# キラキラ度の計算
+        # (いいね-よくないね / 全体) * 補正（logで上昇を緩やかに）
 
     posts.update_one( # 計算したキラキラ度を保存
         {"_id": post_id},
