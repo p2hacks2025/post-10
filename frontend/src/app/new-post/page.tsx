@@ -30,7 +30,7 @@ export default function NewPostPage() {
       // 投稿成功後、入力欄を空にしてタイムラインに戻る
       setContent('');
       router.refresh(); // タイムラインのデータを最新にする
-      router.push('/');
+      router.push('/timeline');
     } catch (error) {
       console.error(error);
       alert('エラーが発生しました');

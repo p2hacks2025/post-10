@@ -7,7 +7,7 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   const menuItems = [
-    { name: 'ホーム', href: '/', icon: '🏠' },
+    { name: 'ホーム', href: '/timeline', icon: '🏠' },
     { name: '投稿する', href: '/new-post', icon: '📝' },
     { name: 'このアプリについて', href: '/about', icon: 'ℹ️' },
   ];
@@ -17,7 +17,7 @@ export default function Sidebar() {
       {/* PC画面用の固定サイドバー、左側 */}
       <aside className="w-18rem h-screen sticky top-0 border-r border-gray-700 p-6 bg-gray-800 hidden md:block">
         <div className="mb-8">
-          <h2 className="text-2xl font-bold text-blue-500">Mira</h2>
+          <h2 className="text-5xl  font-black text-transparent bg-clip-text bg-linear-to-r from-blue-400 via-purple-500 to-yellow-400 mb-6 drop-shadow-sm">Mira</h2>
         </div>
 
         <nav className="space-y-2">
